@@ -2,7 +2,57 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import type { SectionProps } from "@/types"
 
+const sectionIds = ['hero', 'principles', 'examples', 'pros-cons', 'conclusion']
+
 export default function Section({ id, title, subtitle, content, isActive, showButton, buttonText }: SectionProps) {
+  const slideIndex = sectionIds.indexOf(id)
+  const isProsConsSlide = id === 'pros-cons'
+
+  const renderContent = () => {
+    if (!content) return null
+
+    if (isProsConsSlide) {
+      const lines = content.split('\n')
+      return (
+        <motion.div
+          className="mt-6 flex flex-col gap-4 max-w-2xl"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {lines.map((line, i) => {
+            const isPlus = line.startsWith('+')
+            const isMinus = line.startsWith('—')
+            return (
+              <div
+                key={i}
+                className={`flex items-start gap-3 text-lg md:text-xl leading-relaxed ${
+                  isPlus ? 'text-emerald-400' : isMinus ? 'text-rose-400' : 'text-neutral-400'
+                }`}
+              >
+                <span className="font-bold mt-0.5 shrink-0 text-2xl leading-none">
+                  {isPlus ? '+' : isMinus ? '−' : ''}
+                </span>
+                <span>{line.replace(/^[+—]\s*/, '')}</span>
+              </div>
+            )
+          })}
+        </motion.div>
+      )
+    }
+
+    return (
+      <motion.p
+        className="text-lg md:text-xl lg:text-2xl max-w-2xl mt-6 text-neutral-400 leading-relaxed"
+        initial={{ opacity: 0, y: 30 }}
+        animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+        transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {content}
+      </motion.p>
+    )
+  }
+
   return (
     <section id={id} className="relative h-screen w-full snap-start flex flex-col justify-center p-8 md:p-16 lg:p-24">
       {subtitle && (
@@ -23,16 +73,9 @@ export default function Section({ id, title, subtitle, content, isActive, showBu
       >
         {title}
       </motion.h2>
-      {content && (
-        <motion.p
-          className="text-lg md:text-xl lg:text-2xl max-w-2xl mt-6 text-neutral-400 leading-relaxed"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {content}
-        </motion.p>
-      )}
+
+      {renderContent()}
+
       {showButton && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,10 +99,8 @@ export default function Section({ id, title, subtitle, content, isActive, showBu
         animate={isActive ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
       >
-        {String(sections.indexOf(id) + 1).padStart(2, '0')} / {id}
+        {String(slideIndex + 1).padStart(2, '0')} / 05
       </motion.div>
     </section>
   )
 }
-
-const sections = ['hero', 'about', 'features', 'testimonials', 'join']
